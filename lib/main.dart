@@ -90,7 +90,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    configureSelectNotificationSubject();
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => SettingProvider()),
@@ -185,7 +184,7 @@ void initGetStorage() {
   get.writeIfNull(kAppTheme, ThemeMode.light.name);
 }
 
-/// Laucher icon shortcuts
+/// Launcher icon shortcuts
 void configureQuickAction(BuildContext context) {
   const QuickActions quickActions = QuickActions();
   quickActions.initialize((shortcutType) {
@@ -284,7 +283,6 @@ class MyHttpOverrides extends HttpOverrides {
     // allow e-solat jakim to bypass
     return super.createHttpClient(context)
       ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) =>
-              host == 'www.e-solat.gov.my';
+          (_, String host, __) => host == 'www.e-solat.gov.my';
   }
 }

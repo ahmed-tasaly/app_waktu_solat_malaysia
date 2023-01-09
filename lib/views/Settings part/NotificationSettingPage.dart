@@ -16,8 +16,10 @@ import '../../providers/settingsProvider.dart';
 import '../../utils/cupertinoSwitchListTile.dart';
 import 'troubleshoot_notif.dart';
 
-enum MyNotificationType { noazan, azan }
+enum MyNotificationType { noazan, azan, shortAzan }
 
+/// Notification setting page to change notification type,
+/// troubleshooting, and system notification settings and debug notification
 class NotificationPageSetting extends StatefulWidget {
   const NotificationPageSetting({Key? key}) : super(key: key);
   @override
@@ -55,6 +57,14 @@ class _NotificationPageSettingState extends State<NotificationPageSetting> {
                     setState(() => _type = type!);
                   }),
               RadioListTile(
+                  value: MyNotificationType.shortAzan,
+                  groupValue: _type,
+                  title: Text(
+                      AppLocalizations.of(context)!.onboardingNotifShortAzan),
+                  onChanged: (MyNotificationType? type) {
+                    setState(() => _type = type!);
+                  }),
+              RadioListTile(
                   value: MyNotificationType.azan,
                   groupValue: _type,
                   title:
@@ -78,6 +88,8 @@ class _NotificationPageSettingState extends State<NotificationPageSetting> {
                         ),
                         ElevatedButton(
                             onPressed: () {
+                              // mark as need to update notification
+                              // when the app restart
                               GetStorage().write(kShouldUpdateNotif, true);
                               GetStorage()
                                   .write(kNotificationType, _type.index);
@@ -194,6 +206,8 @@ class _NotificationPageSettingState extends State<NotificationPageSetting> {
   }
 }
 
+/// Widget for debug notification
+/// Only shown when (App) developer option is enabled
 class _DebugNotifWidget extends StatelessWidget {
   const _DebugNotifWidget({Key? key}) : super(key: key);
 
@@ -220,17 +234,37 @@ class _DebugNotifWidget extends StatelessWidget {
         ),
         Card(
           child: ListTile(
-            title: const Text('Send azan test in 30 secs'),
-            onTap: () async {
-              await scheduleSingleAzanNotification(
-                  name: 'name',
-                  id: 2321,
-                  title: 'Azan test',
-                  body: 'azan_hejaz2013_fajr',
-                  customSound: 'azan_hejaz2013_fajr',
-                  scheduledTime: tz.TZDateTime.now(tz.local)
-                      .add(const Duration(seconds: 30)));
-            },
+            title: const Text('Send azan test in 15 secs'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                    onPressed: () async {
+                      await scheduleSingleAzanNotification(
+                          name: 'name1',
+                          id: 2321,
+                          title: 'Azan test Full',
+                          body: 'azan_hejaz2013_fajr',
+                          customSound: 'azan_hejaz2013_fajr',
+                          scheduledTime: tz.TZDateTime.now(tz.local)
+                              .add(const Duration(seconds: 15)));
+                    },
+                    child: const Text('Full')),
+                const SizedBox(width: 5),
+                ElevatedButton(
+                    onPressed: () async {
+                      await scheduleSingleAzanNotification(
+                          name: 'name2',
+                          id: 2122,
+                          title: 'Azan test short',
+                          body: 'azan_short_lamy2005',
+                          customSound: 'azan_short_lamy2005',
+                          scheduledTime: tz.TZDateTime.now(tz.local)
+                              .add(const Duration(seconds: 15)));
+                    },
+                    child: const Text('Short'))
+              ],
+            ),
           ),
         ),
         ListTile(

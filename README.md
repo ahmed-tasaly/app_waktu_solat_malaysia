@@ -13,7 +13,7 @@
 
 App waktu solat seluruh negeri di Malaysia | Prayer time app across all states in Malaysia.
 
-Focusing on lightweight, fast app, easy-to-use and modern UI :wink:
+Focusing on a lightweight, fast app, easy-to-use and modern UI :wink:
 
 ![malaysia prayer time screenshots](https://user-images.githubusercontent.com/60868965/167505576-d8e0c62a-76b4-4d82-ade9-fa0722539b5d.png)
 
@@ -43,9 +43,9 @@ Wondering what changed with every :new: release? Or what bug :bug: has been fixe
 
 ## Report issues / Feature requests
 
-_With great power comes great responsibility_. Since this a prayer time app, keeping the data as accurate as possible is crucial Helps me solve issues/find bugs by reporing issues using the in-app **Send Feedback** feature **or** you could open a new [issue](https://github.com/mptwaktusolat/app_waktu_solat_malaysia/issues).
+_With great power comes great responsibility_. Since this is a prayer time app, keeping the data as accurate as possible is crucial Helps me solve issues/find bugs by reporting issues using the in-app **Send Feedback** feature **or** you could open a new [issue](https://github.com/mptwaktusolat/app_waktu_solat_malaysia/issues).
 
-If you would like to contribute to this project, please submit a [pull request](https://github.com/mptwaktusolat/app_waktu_solat_malaysia/pulls).
+If you are interested in contributing to this project, we welcome pull requests. Simply submit one on the [pull request](https://github.com/mptwaktusolat/app_waktu_solat_malaysia/pulls) page.
 
 _p/s: If I'm not responding to the new issue/PR for more than 48 hours. Kindly tag me @iqfareez._
 
@@ -63,17 +63,17 @@ _Not available for iOS sorry :disappointed:_
 
 <a href='https://waktusolat.web.app/'><img alt='Open in Web' src='https://user-images.githubusercontent.com/60868965/99348515-bc2a5200-28d4-11eb-8d34-ac47f3e11f3d.png' style="max-width:45%;"/></a>
 
-_Web app working directory has been separated to `web` branches._
+_Web app working directory is moved to its own [repo](https://github.com/mptwaktusolat/app_waktu_solat_malaysia_web_legacy)_
 
 <!-- https://github.com/webmaxru/progressive-web-apps-logo -->
 
 ## Try the pre-releases
 
-Pre-release is a release track to test the apps that have been added with new features/bug fixes/experiment features that are not ready for production.
+The pre-release track allows you to test the latest version of the app, which may include new features, bug fixes, or experimental features that are not yet ready for production in [discussions](https://github.com/mptwaktusolat/app_waktu_solat_malaysia/discussions).
 
-Download and install the `.apk` from the [releases](https://github.com/mptwaktusolat/app_waktu_solat_malaysia/releases) page (look for the **pre-release** tag). Don't forget to share your feedback and comments.
+To try the pre-release version, download and install the `.apk` file from the [releases](https://github.com/mptwaktusolat/app_waktu_solat_malaysia/releases) page (look for the **pre-release** tag). Please don't forget to share your feedback and comments.
 
-_Note: Pre-release app are no longer submitted to the Google Play Store._
+Note: Pre-release versions are not always submitted to the Google Play Store (Beta track).
 
 ## Devlogs
 
@@ -85,18 +85,38 @@ _Note: Pre-release app are no longer submitted to the Google Play Store._
 [![Part 6](https://img.shields.io/badge/highlights-Part%206-blueviolet?style=for-the-badge)](https://www.instagram.com/s/aGlnaGxpZ2h0OjE3OTA1NDI3MDQ1NDEzMDA0)
 [![Part 7](https://img.shields.io/badge/highlights-Part%207-blueviolet?style=for-the-badge)](https://www.instagram.com/s/aGlnaGxpZ2h0OjE3OTE4NTU0NjEzMTg1NjQ0)
 [![Part 8](https://img.shields.io/badge/highlights-Part%208-blueviolet?style=for-the-badge)](https://www.instagram.com/s/aGlnaGxpZ2h0OjE3OTU1MjM0NjM0OTAxMzg5)
+[![Part 9](https://img.shields.io/badge/highlights-Part%208-blueviolet?style=for-the-badge)](https://www.instagram.com/stories/highlights/17961012149100642/)
 
 ## Motivation
 
 <!-- A short description of the motivation behind the creation and maintenance of the project. This should explain why the project exists. -->
 
-Started with the intention to learn Flutter, until the app has achieved over 40 thousand installs, beyond far on what can I imagine.
+I started this project with the intention of learning Flutter, but it has since gained over 40,000 installs, far beyond my expectations.
 
-I always wanted to contribute something to the ummah (Islam), and this is one of my way of doing it. I hope this project will benefit Malaysians (including people who reside in Malaysia) by providing quick and easy access to prayer times in their area. This project will be kept maintained so it will relevant for many generations to come. Inshallah.
+I have always wanted to contribute something to the ummah (the global Muslim community), and this project is my way of doing so. I hope it will benefit Malaysians (including those living in Malaysia) by providing quick and easy access to prayer times in their area. I plan to maintain this project so that it will remain relevant for many generations to come, inshallah (God willing).
 
 <!-- ## Attribution
 
 <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div> -->
+
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center"><a href="http://iqfareez.com"><img src="https://avatars.githubusercontent.com/u/60868965?v=4?s=75" width="75px;" alt="Fareez Iqmal"/><br /><sub><b>Fareez Iqmal</b></sub></a><br /><a href="https://github.com/mptwaktusolat/app_waktu_solat_malaysia/commits?author=iqfareez" title="Code">💻</a> <a href="https://github.com/mptwaktusolat/app_waktu_solat_malaysia/commits?author=iqfareez" title="Tests">⚠️</a> <a href="https://github.com/mptwaktusolat/app_waktu_solat_malaysia/commits?author=iqfareez" title="Documentation">📖</a> <a href="#design-iqfareez" title="Design">🎨</a> <a href="#content-iqfareez" title="Content">🖋</a></td>
+      <td align="center"><a href="https://github.com/agoza"><img src="https://avatars.githubusercontent.com/u/49515501?v=4?s=75" width="75px;" alt="agoza"/><br /><sub><b>agoza</b></sub></a><br /><a href="https://github.com/mptwaktusolat/app_waktu_solat_malaysia/commits?author=agoza" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ## Legalese
 
@@ -104,7 +124,7 @@ I always wanted to contribute something to the ummah (Islam), and this is one of
 - [Privacy Policy](https://waktusolat.iqfareez.com/privacy-policy)
 - Google Play and the Google Play logo are trademarks of Google LLC.
 
-## Acknowledgements
+## Acknowledgments
 
 Article, assets, and resources that help me throughout the development.
 
@@ -125,20 +145,7 @@ and sure, there's a lot more.
 
 - 3D assets you see on the onboarding screen are from [BAM 3D Illustration kit](https://www.uistore.design/items/bam-free-3d-illustration-kit/) & [3dicons](https://3dicons.co/).
 - Tasbih icons created by [Freepik](https://www.flaticon.com/free-icons/tasbih).
-- Mosques images (in full timetable page)
-  - Selangor - [IIUM SHAS Mosque](https://i2.wp.com/news.iium.edu.my/wp-content/uploads/2017/06/10982272836_29abebc100_b.jpg?ssl=1) from [IIUM](https://news.iium.edu.my/?tag=mosque)
-  - WP KL/Putrajaya - [Masjid Putra](https://central.menarikdi.com/wp-content/uploads/2020/10/WhatsApp-Image-2020-10-16-at-11.24.55.jpeg) from [central.menarikdi.com](https://central.menarikdi.com/2020/10/16/menarikdiputrajaya-masjid-putra-putrajaya/)
-  - Negeri Sembilan - [Masjid Sri Sendayan](https://1.bp.blogspot.com/-ZW8tBE2gGmw/XzKRI3DNXKI/AAAAAAAANQ8/4CCgKWVwvjk8BojQ_WwtaXMv5XjrSt1EwCLcBGAsYHQ/s1079/IMG_20200811_203714.jpg) from [mywilayah.com](https://www.mywilayah.com/2020/08/keunikan-masjid-sri-sendayan-negeri.html)
-  - Kelantan - [Masjid Al-Ismaili](https://live.staticflickr.com/4504/37094479654_b5a03c0bce_b.jpg) from [Flicker](<(https://www.flickr.com/photos/159566909@N03/37094479654)>)
-  - Terengganu - [Masjid Kristal](https://itc.gov.my/wp-content/uploads/2021/04/Masjid-Kristal-Kuala-Terengganu.jpg) from [ITC](https://itc.gov.my/listings/masjid-kristal-kuala-terengganu/)
-  - Perlis - [Masjid Al-Hussain](https://www.maips.gov.my/images/2019/07/08/masjid_alhussain.jpg) from [MAIPS](https://www.maips.gov.my/index.php?option=com_sppagebuilder&view=page&id=140&Itemid=862&lang=ms)
-  - Sarawak - [Masjid Terapung](https://assets.bharian.com.my/images/articles/MASJID_INDIA_BANDAR_KUCHING_1552789924.jpg) from [BHarian](https://www.bharian.com.my/berita/wilayah/2019/03/541946/masjid-terapung-tarikan-terbaharu-di-kuching)
-  - Sabah - [Masjid Bdraya Kota Kinabalu](https://itc.gov.my/wp-content/uploads/2021/04/Masjid-Bandaraya-Kota-Kinabalu.jpg) from [ITC](https://itc.gov.my/listings/masjid-bandaraya-kota-kinabalu/)
-  - WP Labuan - [Masjid Jamek An-Nur](https://www.pulaulabuan.com/wp-content/uploads/Masjid-Jamek-An-Nur-Labuan-Romel-Jacinto.jpg) from [pulaulabuan.com](https://www.pulaulabuan.com/masjid-jamek-an-nur/)
-  - Johor - [Masjid Sultan Iskandar](https://cdn.libur.com.my/2019/12/99715-19_04_785369.jpeg) from [libur.com.my](https://www.libur.com.my/masjid-sultan-iskandarjohor-diisytihar-masjid-pelancongan-pertama/)
-  - Kedah - [Masjid Zahir](https://live.staticflickr.com/7144/6751142693_ca74a2432d_b.jpg) from [Flickr](https://www.flickr.com/photos/samkranzphotography/6751142693)
-  - Pahang - [Masjid Sultan Ahmad](https://itc.gov.my/wp-content/uploads/2021/04/Masjid-Sultan-Ahmad-1-Kuantan.jpg) from [ITC](https://itc.gov.my/listings/masjid-sultan-ahmad-1-kuantan/)
-  - Perak - [Masjid Ubudiah](https://www.kualakangsar.gov.my/sites/default/files/styles/panopoly_image_original/public/ubudiah.jpg?itok=zE8SjsYa) from [MP Kuala Kangsar](https://www.kualakangsar.gov.my/ms/masjid-ubudiah-0)
-  - Melaka - [Masjid Selat Melaka](https://upload.wikimedia.org/wikipedia/commons/7/78/Masjid_Selat_Melaka_%287870872160%29.jpg) from [Wikipedia](https://ms.wikipedia.org/wiki/Masjid_Selat_Melaka)
+- Mosques images (in full timetable page) is taken from various sources
+- [Azan(s)](https://soundcloud.com/alafasy/sets/athan) by Syeikh Mishary Rashid Alafasy
 
 ### May Allah ease everything in developing MPT. InshaAllah!
