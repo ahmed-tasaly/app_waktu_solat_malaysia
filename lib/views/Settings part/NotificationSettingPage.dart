@@ -12,7 +12,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../../CONSTANTS.dart';
 import '../../notificationUtil/notifications_helper.dart';
-import '../../providers/settingsProvider.dart';
+import '../../providers/setting_provider.dart';
 import '../../utils/cupertinoSwitchListTile.dart';
 import 'troubleshoot_notif.dart';
 
@@ -30,6 +30,10 @@ class NotificationPageSetting extends StatefulWidget {
 class _NotificationPageSettingState extends State<NotificationPageSetting> {
   MyNotificationType _type =
       MyNotificationType.values[GetStorage().read(kNotificationType)];
+
+  // to make sure only one banner is shown at a time
+  ScaffoldFeatureController<MaterialBanner, MaterialBannerClosedReason>?
+      _bannerController;
 
   @override
   Widget build(BuildContext context) {
@@ -51,59 +55,72 @@ class _NotificationPageSettingState extends State<NotificationPageSetting> {
               RadioListTile(
                   value: MyNotificationType.noazan,
                   groupValue: _type,
-                  title: Text(
-                      AppLocalizations.of(context)!.onboardingNotifDefault),
+                  title: Row(
+                    children: [
+                      Text(
+                          AppLocalizations.of(context)!.onboardingNotifDefault),
+                      const Spacer(),
+                      IconButton(
+                          onPressed: () {
+                            fireDefaultNotification(
+                              message: AppLocalizations.of(context)!
+                                  .notifSettingNotifDemo,
+                            );
+                          },
+                          icon: const Icon(Icons.play_arrow)),
+                    ],
+                  ),
                   onChanged: (MyNotificationType? type) {
                     setState(() => _type = type!);
+                    _handleRestartBanner();
                   }),
               RadioListTile(
                   value: MyNotificationType.shortAzan,
                   groupValue: _type,
-                  title: Text(
-                      AppLocalizations.of(context)!.onboardingNotifShortAzan),
+                  title: Row(
+                    children: [
+                      Text(AppLocalizations.of(context)!
+                          .onboardingNotifShortAzan),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () {
+                          fireAzanNotification(
+                            type: MyNotificationType.shortAzan,
+                            message: AppLocalizations.of(context)!
+                                .notifSettingNotifDemo,
+                          );
+                        },
+                        icon: const Icon(Icons.play_arrow),
+                      ),
+                    ],
+                  ),
                   onChanged: (MyNotificationType? type) {
                     setState(() => _type = type!);
+                    _handleRestartBanner();
                   }),
               RadioListTile(
                   value: MyNotificationType.azan,
                   groupValue: _type,
-                  title:
+                  title: Row(
+                    children: [
                       Text(AppLocalizations.of(context)!.onboardingNotifAzan),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () {
+                          fireAzanNotification(
+                            type: MyNotificationType.azan,
+                            message: AppLocalizations.of(context)!
+                                .notifSettingNotifDemo,
+                          );
+                        },
+                        icon: const Icon(Icons.play_arrow),
+                      ),
+                    ],
+                  ),
                   onChanged: (MyNotificationType? type) {
                     setState(() => _type = type!);
+                    _handleRestartBanner();
                   }),
-              Builder(builder: (_) {
-                if (_type !=
-                    MyNotificationType
-                        .values[GetStorage().read(kNotificationType)]) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!
-                              .notifSettingChangesDetect,
-                          style: Theme.of(context).textTheme.subtitle2,
-                        ),
-                        ElevatedButton(
-                            onPressed: () {
-                              // mark as need to update notification
-                              // when the app restart
-                              GetStorage().write(kShouldUpdateNotif, true);
-                              GetStorage()
-                                  .write(kNotificationType, _type.index);
-                              Restart.restartApp();
-                            },
-                            child: Text(AppLocalizations.of(context)!
-                                .notifSettingRestartApp)),
-                      ],
-                    ),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
             ],
           )),
           Card(
@@ -203,6 +220,39 @@ class _NotificationPageSettingState extends State<NotificationPageSetting> {
         ],
       ),
     );
+  }
+
+  /// Handle showing/hiding of banner when the user change the notification type
+  void _handleRestartBanner() async {
+    var currentNotifType =
+        MyNotificationType.values[GetStorage().read(kNotificationType)];
+
+    // show if new type is different from the old one (stored in storage)
+    if (_type != currentNotifType) {
+      // if material banner already shown, do nothing
+      if (_bannerController != null) return;
+
+      // show material banner
+      _bannerController = ScaffoldMessenger.of(context).showMaterialBanner(
+          MaterialBanner(
+              content:
+                  Text(AppLocalizations.of(context)!.notifSettingChangesDetect),
+              actions: [
+            TextButton(
+              child: Text(AppLocalizations.of(context)!.notifSettingRestartApp),
+              onPressed: () {
+                // mark as need to update notification
+                // when the app restart
+                GetStorage().write(kShouldUpdateNotif, true);
+                GetStorage().write(kNotificationType, _type.index);
+                Restart.restartApp();
+              },
+            )
+          ]));
+    } else {
+      ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+      _bannerController = null;
+    }
   }
 }
 

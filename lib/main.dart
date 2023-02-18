@@ -22,11 +22,11 @@ import 'firebase_options.dart';
 import 'location_utils/location_database.dart';
 import 'models/jakim_zones.dart';
 import 'notificationUtil/notifications_helper.dart';
-import 'providers/ThemeController.dart';
 import 'providers/autostart_warning_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/location_provider.dart';
-import 'providers/settingsProvider.dart';
+import 'providers/setting_provider.dart';
+import 'providers/theme_controller.dart';
 import 'providers/timetable_provider.dart';
 import 'providers/updater_provider.dart';
 import 'utils/sharing_fab.dart';
@@ -108,7 +108,7 @@ class MyApp extends StatelessWidget {
             navigatorObservers: <NavigatorObserver>[observer],
             theme: ThemeData.light().copyWith(
               primaryColor: _primaryColour,
-              bottomAppBarColor: Colors.teal.shade50,
+              bottomAppBarTheme: BottomAppBarTheme(color: Colors.teal.shade50),
               visualDensity: VisualDensity.adaptivePlatformDensity,
               appBarTheme: AppBarTheme(
                 color: _primaryColour,
@@ -116,7 +116,8 @@ class MyApp extends StatelessWidget {
             ),
             darkTheme: ThemeData.dark().copyWith(
                 primaryColor: _primaryColour,
-                bottomAppBarColor: Colors.teal.withOpacity(0.4),
+                bottomAppBarTheme:
+                    BottomAppBarTheme(color: Colors.teal.withOpacity(0.4)),
                 visualDensity: VisualDensity.adaptivePlatformDensity,
                 appBarTheme: AppBarTheme(color: _primaryColour.shade800)),
             themeMode: themeValue.themeMode,
@@ -152,7 +153,7 @@ class MyHomePage extends StatelessWidget {
       ),
       bottomNavigationBar: const MyBottomAppBar(),
       floatingActionButton: const ShareFAB(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: const SingleChildScrollView(
         child: AppBody(),
       ),
@@ -180,7 +181,7 @@ void initGetStorage() {
   get.writeIfNull(kFontSize, 14.0);
   // make default to default locale
   var localeName = Platform.localeName.split('_').first;
-  get.writeIfNull(kAppLanguage, localeName == "ms" ? localeName : "en");
+  get.writeIfNull(kAppLanguage, localeName == "ms" ? "ms" : "en");
   get.writeIfNull(kAppTheme, ThemeMode.light.name);
 }
 
