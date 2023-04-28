@@ -1,7 +1,9 @@
 import 'package:auto_start_flutter/auto_start_flutter.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:introduction_screen/introduction_screen.dart';
@@ -46,6 +48,24 @@ class _OnboardingPageState extends State<OnboardingPage>
     super.initState();
     _animController =
         AnimationController(vsync: this, duration: const Duration(seconds: 1));
+  }
+
+  /// Check if platforms support AutoStart. (Excluusing Samsung devices)
+  /// Related to https://github.com/mptwaktusolat/app_waktu_solat_malaysia/issues/89
+  Future<bool> checkAutoStart() async {
+    var autoStartAvailable = await isAutoStartAvailable;
+
+    if (autoStartAvailable ?? false) {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      var deviceBrand = androidInfo.brand;
+
+      // skip triggering autostart banner for samsung devices because
+      // there is no option to toggle autostart settings whatsoever
+      if (deviceBrand.toLowerCase() == 'samsung') return false;
+    }
+
+    return autoStartAvailable ?? false;
   }
 
   @override
@@ -96,8 +116,6 @@ class _OnboardingPageState extends State<OnboardingPage>
                       textAlign: TextAlign.center,
                     )
                   : ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal),
                       onPressed: () async {
                         var res =
                             await LocationChooser.showLocationChooser(context);
@@ -163,8 +181,8 @@ class _OnboardingPageState extends State<OnboardingPage>
                 GetStorage().write(kNotificationType, type?.index);
                 setState(() => _notificationType = type!);
               }),
-          FutureBuilder<bool?>(
-              future: isAutoStartAvailable,
+          FutureBuilder<bool>(
+              future: checkAutoStart(),
               builder: (_, snapshot) {
                 if (snapshot.hasData && snapshot.data!) {
                   // https://mobikul.com/shake-effect-in-flutter/
@@ -194,15 +212,27 @@ class _OnboardingPageState extends State<OnboardingPage>
     return IntroductionScreen(
         key: _introScreenKey,
         pages: pages,
-        // color: Colors.teal,
-        // baseBtnStyle: ButtonStyle(foregroundColor: Colors.teal),
         dotsDecorator: DotsDecorator(
-          activeColor: Colors.teal,
+          activeColor: Theme.of(context).colorScheme.primary,
           size: const Size.square(9.0),
           activeSize: const Size(18.0, 9.0),
           activeShape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
         ),
+        onChange: (value) async {
+          // show notification permission dialog
+          // when user reached the notification style chooser
+          if (value == 3) {
+            /// ask NotificationPermission
+            FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+                FlutterLocalNotificationsPlugin();
+            var res = await flutterLocalNotificationsPlugin
+                .resolvePlatformSpecificImplementation<
+                    AndroidFlutterLocalNotificationsPlugin>()
+                ?.requestPermission();
+            print('res is $res');
+          }
+        },
         overrideNext: TextButton(
             child: Text(AppLocalizations.of(context)!.onboardingNext,
                 style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -210,7 +240,7 @@ class _OnboardingPageState extends State<OnboardingPage>
               bool hasClick =
                   Provider.of<AutostartWarningProvider>(context, listen: false)
                       .hasClick;
-              bool isAutostartAvailable = await isAutoStartAvailable ?? false;
+              bool isAutostartAvailable = await checkAutoStart();
 
               if (!isAutostartAvailable) {
                 _introScreenKey.currentState?.next();

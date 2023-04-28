@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -51,6 +52,12 @@ void main() async {
   // Pass all uncaught errors from the framework to Crashlytics.
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
+  // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+
   // Disable analytics & crashlytics when in debug mode
   FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
   FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(!kDebugMode);
@@ -81,8 +88,8 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
+  // default colour seed for devices that didn't support dynamic colour
   final _primaryColour = Colors.teal;
-  // TODO: Add another colour
 
   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static FirebaseAnalyticsObserver observer =
@@ -102,33 +109,32 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer2<ThemeProvider, LocaleProvider>(
         builder: (_, themeValue, localeValue, __) {
-          return MaterialApp(
-            onGenerateTitle: (context) =>
-                AppLocalizations.of(context)!.appTitle,
-            navigatorObservers: <NavigatorObserver>[observer],
-            theme: ThemeData.light().copyWith(
-              primaryColor: _primaryColour,
-              bottomAppBarTheme: BottomAppBarTheme(color: Colors.teal.shade50),
-              visualDensity: VisualDensity.adaptivePlatformDensity,
-              appBarTheme: AppBarTheme(
-                color: _primaryColour,
+          return DynamicColorBuilder(
+              builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+            return MaterialApp(
+              onGenerateTitle: (context) =>
+                  AppLocalizations.of(context)!.appTitle,
+              navigatorObservers: <NavigatorObserver>[observer],
+              theme: ThemeData(
+                colorScheme: lightDynamic ??
+                    ColorScheme.fromSeed(seedColor: _primaryColour),
+                useMaterial3: true,
               ),
-            ),
-            darkTheme: ThemeData.dark().copyWith(
-                primaryColor: _primaryColour,
-                bottomAppBarTheme:
-                    BottomAppBarTheme(color: Colors.teal.withOpacity(0.4)),
-                visualDensity: VisualDensity.adaptivePlatformDensity,
-                appBarTheme: AppBarTheme(color: _primaryColour.shade800)),
-            themeMode: themeValue.themeMode,
-            // Material 3 ?
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            locale: Locale(localeValue.appLocale),
-            home: GetStorage().read(kIsFirstRun)
-                ? const OnboardingPage()
-                : const MyHomePage(),
-          );
+              darkTheme: ThemeData.dark().copyWith(
+                colorScheme: darkDynamic ??
+                    ColorScheme.fromSeed(
+                        seedColor: _primaryColour, brightness: Brightness.dark),
+                useMaterial3: true,
+              ),
+              themeMode: themeValue.themeMode,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: Locale(localeValue.appLocale),
+              home: GetStorage().read(kIsFirstRun)
+                  ? const OnboardingPage()
+                  : const MyHomePage(),
+            );
+          });
         },
       ),
     );
@@ -140,20 +146,26 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    configureQuickAction(context);
+    _configureQuickAction(context);
     return Scaffold(
       appBar: AppBar(
-        systemOverlayStyle:
-            const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+        ),
         title: Text(AppLocalizations.of(context)!.appbarTitle,
             style: GoogleFonts.balooTamma2(fontWeight: FontWeight.bold)),
         elevation: 0.0,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.background,
         centerTitle: true,
         toolbarHeight: 50,
       ),
+      // known issue that causes white line appear between appbar and widget below
+      // https://github.com/flutter/flutter/issues/14288
       bottomNavigationBar: const MyBottomAppBar(),
       floatingActionButton: const ShareFAB(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       body: const SingleChildScrollView(
         child: AppBody(),
       ),
@@ -178,7 +190,7 @@ void initGetStorage() {
   get.writeIfNull(kIsDebugMode, false);
   get.writeIfNull(kDiscoveredDeveloperOption, false);
   get.writeIfNull(kSharingFormat, 0);
-  get.writeIfNull(kFontSize, 14.0);
+  get.writeIfNull(kFontSize, 16.0);
   // make default to default locale
   var localeName = Platform.localeName.split('_').first;
   get.writeIfNull(kAppLanguage, localeName == "ms" ? "ms" : "en");
@@ -186,7 +198,7 @@ void initGetStorage() {
 }
 
 /// Launcher icon shortcuts
-void configureQuickAction(BuildContext context) {
+void _configureQuickAction(BuildContext context) {
   const QuickActions quickActions = QuickActions();
   quickActions.initialize((shortcutType) {
     switch (shortcutType) {
