@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
-import '../models/jakim_esolat_model.dart';
+import '../models/mpt_server_solat.dart';
 import '../notificationUtil/notification_scheduler.dart';
 import '../notificationUtil/prevent_update_notifs.dart';
 import '../providers/setting_provider.dart';
@@ -14,30 +15,30 @@ import '../utils/prayer_data_handler.dart';
 String? location;
 
 class PrayTimeList extends StatefulWidget {
-  const PrayTimeList({Key? key, this.prayerTime}) : super(key: key);
-  final JakimEsolatModel? prayerTime;
+  const PrayTimeList({super.key, this.prayerTime});
+  final MptServerSolat? prayerTime;
 
   @override
   State<PrayTimeList> createState() => _PrayTimeListState();
 }
 
-class _PrayTimeListState extends State<PrayTimeList>
-    with WidgetsBindingObserver {
+class _PrayTimeListState extends State<PrayTimeList> {
+  late final AppLifecycleListener _listener;
+
   @override
   void initState() {
     super.initState();
-    // https://stackoverflow.com/a/54198839/13617136
-    WidgetsBinding.instance.addObserver(this);
+
+    _listener = AppLifecycleListener(onStateChange: _onStateChanged);
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _listener.dispose();
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void _onStateChanged(AppLifecycleState state) {
     // When app resume from back to view, refresh UI so that
     // the highlighted time can be updated
     if (state == AppLifecycleState.resumed) setState(() {});
@@ -47,15 +48,15 @@ class _PrayTimeListState extends State<PrayTimeList>
   Widget build(BuildContext context) {
     if (PreventUpdatingNotifs.shouldUpdate()) {
       MyNotifScheduler.schedulePrayNotification(
-          context, PrayDataHandler.notificationTimes());
+          AppLocalizations.of(context)!, PrayDataHandler.notificationTimes());
     }
 
     return Consumer<SettingProvider>(
       builder: (_, setting, __) {
-        bool showOtherPrayerTime = setting.showOtherPrayerTime;
-        var today = PrayDataHandler.today();
+        final bool showOtherPrayerTime = setting.showOtherPrayerTime;
+        final today = PrayDataHandler.today();
 
-        var now = DateTime.now();
+        final now = DateTime.now();
 
         bool nowSubuh = false,
             nowZohor = false,
@@ -76,57 +77,69 @@ class _PrayTimeListState extends State<PrayTimeList>
           nowIsha = true;
         }
 
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            if (showOtherPrayerTime)
-              SolatCard(
-                  time: today.imsak,
-                  name: AppLocalizations.of(context)!.imsakName,
-                  isOther: false),
-            SolatCard(
-              time: today.fajr,
-              name: AppLocalizations.of(context)!.fajrName,
-              isOther: true,
-              isCurrentPrayerTime: nowSubuh,
+        return AnimationLimiter(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisSize: MainAxisSize.max,
+            children: AnimationConfiguration.toStaggeredList(
+              childAnimationBuilder: (widget) {
+                return SlideAnimation(
+                  verticalOffset: 50.0,
+                  child: FadeInAnimation(
+                    child: widget,
+                  ),
+                );
+              },
+              children: [
+                if (showOtherPrayerTime)
+                  SolatCard(
+                      time: today.imsak,
+                      name: AppLocalizations.of(context)!.imsakName,
+                      isOther: false),
+                SolatCard(
+                  time: today.fajr,
+                  name: AppLocalizations.of(context)!.fajrName,
+                  isOther: true,
+                  isCurrentPrayerTime: nowSubuh,
+                ),
+                if (showOtherPrayerTime)
+                  SolatCard(
+                      time: today.syuruk,
+                      name: AppLocalizations.of(context)!.sunriseName,
+                      isOther: false),
+                if (showOtherPrayerTime)
+                  SolatCard(
+                      time: today.dhuha,
+                      name: AppLocalizations.of(context)!.dhuhaName,
+                      isOther: false),
+                SolatCard(
+                  time: today.dhuhr,
+                  name: AppLocalizations.of(context)!.dhuhrName,
+                  isOther: true,
+                  isCurrentPrayerTime: nowZohor,
+                ),
+                SolatCard(
+                  time: today.asr,
+                  name: AppLocalizations.of(context)!.asrName,
+                  isOther: true,
+                  isCurrentPrayerTime: nowAsar,
+                ),
+                SolatCard(
+                  time: today.maghrib,
+                  name: AppLocalizations.of(context)!.maghribName,
+                  isOther: true,
+                  isCurrentPrayerTime: nowMaghrib,
+                ),
+                SolatCard(
+                  time: today.isha,
+                  name: AppLocalizations.of(context)!.ishaName,
+                  isOther: true,
+                  isCurrentPrayerTime: nowIsha,
+                ),
+                const SizedBox(height: 10), // give some bottom space
+              ],
             ),
-            if (showOtherPrayerTime)
-              SolatCard(
-                  time: today.syuruk,
-                  name: AppLocalizations.of(context)!.sunriseName,
-                  isOther: false),
-            if (showOtherPrayerTime)
-              SolatCard(
-                  time: today.dhuha,
-                  name: AppLocalizations.of(context)!.dhuhaName,
-                  isOther: false),
-            SolatCard(
-              time: today.dhuhr,
-              name: AppLocalizations.of(context)!.dhuhrName,
-              isOther: true,
-              isCurrentPrayerTime: nowZohor,
-            ),
-            SolatCard(
-              time: today.asr,
-              name: AppLocalizations.of(context)!.asrName,
-              isOther: true,
-              isCurrentPrayerTime: nowAsar,
-            ),
-            SolatCard(
-              time: today.maghrib,
-              name: AppLocalizations.of(context)!.maghribName,
-              isOther: true,
-              isCurrentPrayerTime: nowMaghrib,
-            ),
-            SolatCard(
-              time: today.isha,
-              name: AppLocalizations.of(context)!.ishaName,
-              isOther: true,
-              isCurrentPrayerTime: nowIsha,
-            ),
-            const SizedBox(height: 10), // give some bottom space
-          ],
+          ),
         );
       },
     );
@@ -135,12 +148,11 @@ class _PrayTimeListState extends State<PrayTimeList>
 
 class SolatCard extends StatelessWidget {
   const SolatCard(
-      {Key? key,
+      {super.key,
       required this.isOther,
       required this.name,
       required this.time,
-      this.isCurrentPrayerTime = false})
-      : super(key: key);
+      this.isCurrentPrayerTime = false});
 
   /// Imsak, Syuruk, Dhuha set to true
   final bool isOther;

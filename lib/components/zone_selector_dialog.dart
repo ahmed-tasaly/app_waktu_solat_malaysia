@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../location_utils/location_database.dart';
@@ -7,6 +8,7 @@ import '../providers/location_provider.dart';
 
 enum CurrentView { state, zone }
 
+/// Dialog manually select prayer time zone
 class ZoneSelectorDialog extends StatefulWidget {
   const ZoneSelectorDialog({super.key});
 
@@ -27,7 +29,7 @@ class _ZoneSelectorDialogState extends State<ZoneSelectorDialog> {
     super.initState();
     negeriList = allZones.map((e) => e.negeri).toSet().toList();
 
-    var jakimCode = Provider.of<LocationProvider>(context, listen: false)
+    final jakimCode = Provider.of<LocationProvider>(context, listen: false)
         .currentLocationCode;
     selectedNegeri = LocationDatabase.negeri(jakimCode);
     selectedJakimZone =
@@ -36,8 +38,9 @@ class _ZoneSelectorDialogState extends State<ZoneSelectorDialog> {
 
   @override
   Widget build(BuildContext context) {
-    bool isWideScreen = MediaQuery.of(context).size.width > 768;
+    final bool isWideScreen = MediaQuery.of(context).size.width > 768;
 
+    // Use [WillPopScope] over [PopScope] for now. Using [PopScope] may introoduce unwanted behavior https://imgur.com/a/prW2NsL
     return WillPopScope(
       onWillPop: () async {
         if (isWideScreen) return true;
@@ -49,14 +52,15 @@ class _ZoneSelectorDialogState extends State<ZoneSelectorDialog> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-              'Select ${currentView == CurrentView.state ? 'state' : 'zone'}'),
+          title: Text(currentView == CurrentView.state
+              ? AppLocalizations.of(context)!.zoneManualSelectState
+              : AppLocalizations.of(context)!.zoneManualSelectZone),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context, selectedJakimZone);
               },
-              child: const Text('Save'),
+              child: Text(AppLocalizations.of(context)!.zoneManualSave),
             ),
           ],
         ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart';
 
-import '../views/Settings part/NotificationSettingPage.dart';
+import '../views/settings/notification_page_setting.dart';
 
 class NotificationClass {
   final int? id;
@@ -14,10 +14,9 @@ class NotificationClass {
 }
 
 Future<void> initNotifications() async {
-  var initializationSettingsAndroid =
-      const AndroidInitializationSettings('icon');
+  const initializationSettingsAndroid = AndroidInitializationSettings('icon');
 
-  var initializationSettings =
+  const initializationSettings =
       InitializationSettings(android: initializationSettingsAndroid);
   await FlutterLocalNotificationsPlugin().initialize(initializationSettings);
 }
@@ -31,9 +30,9 @@ Future<void> scheduleSinglePrayerNotification({
   required TZDateTime scheduledTime,
   String? summary,
 }) async {
-  BigTextStyleInformation styleInformation =
+  final BigTextStyleInformation styleInformation =
       BigTextStyleInformation(body, summaryText: summary);
-  var androidSpecifics = AndroidNotificationDetails(
+  final androidSpecifics = AndroidNotificationDetails(
     '$name id', // Different prayer time have different id
     '$name notification',
     channelDescription: 'Scheduled daily prayer notification',
@@ -44,29 +43,30 @@ Future<void> scheduleSinglePrayerNotification({
     when: scheduledTime.millisecondsSinceEpoch,
     color: const Color(0xFF19e3cb),
   );
-  var platformChannelSpecifics = NotificationDetails(android: androidSpecifics);
+  final platformChannelSpecifics =
+      NotificationDetails(android: androidSpecifics);
 
   await FlutterLocalNotificationsPlugin().zonedSchedule(
       id, title, body, scheduledTime, platformChannelSpecifics,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.alarmClock,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation
               .absoluteTime); // This literally schedules the notification
 }
 
 /// Single prayer azan notification
-Future<void> scheduleSingleAzanNotification(
-    //for main prayer functionality
-    {required String name,
-    required int id,
-    required String title,
-    required String body,
-    required TZDateTime scheduledTime,
-    required String customSound,
-    String? summary}) async {
-  BigTextStyleInformation styleInformation =
+Future<void> scheduleSingleAzanNotification({
+  required String name,
+  required int id,
+  required String title,
+  required String body,
+  required TZDateTime scheduledTime,
+  required String customSound,
+  String? summary,
+}) async {
+  final BigTextStyleInformation styleInformation =
       BigTextStyleInformation(body, summaryText: summary);
-  var androidSpecifics = AndroidNotificationDetails(
+  final androidSpecifics = AndroidNotificationDetails(
     // Different prayer time have different channel id
     // The `1` in the `azan1` is to distinguish from previosly created channel. See
     // issue https://github.com/mptwaktusolat/app_waktu_solat_malaysia/issues/173#issuecomment-1454333533
@@ -83,11 +83,12 @@ Future<void> scheduleSingleAzanNotification(
     sound: RawResourceAndroidNotificationSound(customSound),
     color: const Color(0xFF19e3cb),
   );
-  var platformChannelSpecifics = NotificationDetails(android: androidSpecifics);
+  final platformChannelSpecifics =
+      NotificationDetails(android: androidSpecifics);
 
   await FlutterLocalNotificationsPlugin().zonedSchedule(
       id, title, body, scheduledTime, platformChannelSpecifics,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.alarmClock,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation
               .absoluteTime); // This literally schedules the notification
@@ -100,8 +101,9 @@ Future<void> scheduleAlertNotification(
     required String body,
     String? payload,
     required TZDateTime scheduledTime}) async {
-  BigTextStyleInformation styleInformation = BigTextStyleInformation(body);
-  var androidSpecifics = AndroidNotificationDetails(
+  final BigTextStyleInformation styleInformation =
+      BigTextStyleInformation(body);
+  final androidSpecifics = AndroidNotificationDetails(
     'Alert id',
     'Alert notification',
     channelDescription: 'Alerts and reminders to user',
@@ -112,7 +114,8 @@ Future<void> scheduleAlertNotification(
     color: const Color(0xFFfcbd00),
   );
 
-  var platformChannelSpecifics = NotificationDetails(android: androidSpecifics);
+  final platformChannelSpecifics =
+      NotificationDetails(android: androidSpecifics);
   await FlutterLocalNotificationsPlugin().zonedSchedule(
       id, title, body, scheduledTime, platformChannelSpecifics,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -143,7 +146,7 @@ Future<void> showDebugNotification() async {
 Future<void> fireDefaultNotification({
   required String message,
 }) async {
-  var androidSpecifics = const AndroidNotificationDetails(
+  const androidSpecifics = AndroidNotificationDetails(
     'fire default id', // Different prayer time have different id
     'fire default notification',
     channelDescription: 'Demo notification',
@@ -152,7 +155,8 @@ Future<void> fireDefaultNotification({
     category: AndroidNotificationCategory.alarm,
     color: Color.fromARGB(255, 251, 53, 172),
   );
-  var platformChannelSpecifics = NotificationDetails(android: androidSpecifics);
+  const platformChannelSpecifics =
+      NotificationDetails(android: androidSpecifics);
 
   await FlutterLocalNotificationsPlugin().show(
     344, // just random id
@@ -167,7 +171,7 @@ Future<void> fireAzanNotification({
   required MyNotificationType type,
   required String message,
 }) async {
-  var androidSpecifics = AndroidNotificationDetails(
+  final androidSpecifics = AndroidNotificationDetails(
     'fire ${type.name} id', // Different prayer time have different id
     'fire ${type.name} notification',
     channelDescription: 'Scheduled daily prayer azan',
@@ -181,7 +185,8 @@ Future<void> fireAzanNotification({
             : 'azan_kurdhi2010'),
     color: const Color.fromARGB(255, 251, 53, 172),
   );
-  var platformChannelSpecifics = NotificationDetails(android: androidSpecifics);
+  final platformChannelSpecifics =
+      NotificationDetails(android: androidSpecifics);
 
   await FlutterLocalNotificationsPlugin().show(
       MyNotificationType.shortAzan.index * 2,

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_storage/get_storage.dart';
 
-import '../CONSTANTS.dart';
-import 'Settings part/NotificationSettingPage.dart';
+import '../constants.dart';
+import 'settings/notification_page_setting.dart';
 
 /// It will ask "Is notification is show at prayer time" in appbody
 
 class NotifPrompt extends StatefulWidget {
-  const NotifPrompt({Key? key}) : super(key: key);
+  const NotifPrompt({super.key});
 
   @override
   State<NotifPrompt> createState() => _NotifPromptState();

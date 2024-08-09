@@ -3,23 +3,25 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:hotspot/hotspot.dart';
 import 'package:provider/provider.dart';
 
-import '../CONSTANTS.dart';
+import '../constants.dart';
+import '../env.dart';
+import '../features/check_updates/views/update_page.dart';
+import '../features/feedback/views/feedback_page.dart';
+import '../features/kompas_kiblat/views/qibla_disclaimer_page.dart';
+import '../features/kompas_kiblat/views/qibla_page.dart';
 import '../providers/updater_provider.dart';
 import '../utils/launch_url.dart';
 import '../utils/my_mpt_icons_icons.dart';
-import 'Qibla%20part/qibla.dart';
-import 'Qibla%20part/qibla_warn.dart';
-import 'Settings%20part/SettingsPage.dart';
-import 'Settings part/theme_page.dart';
-import 'feedback_page.dart';
 import 'prayer_full_table.dart';
+import 'settings/settings_page.dart';
+import 'settings/theme_page.dart';
 import 'tasbih.dart';
-import 'update_page.dart';
 
 class MyBottomAppBar extends StatelessWidget {
-  const MyBottomAppBar({Key? key}) : super(key: key);
+  const MyBottomAppBar({super.key});
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
@@ -27,65 +29,75 @@ class MyBottomAppBar extends StatelessWidget {
         children: [
           Consumer<UpdaterProvider>(builder: (_, setting, __) {
             return IconButton(
-                tooltip: AppLocalizations.of(context)?.menuTooltip,
-                icon: Stack(children: [
-                  const Align(
-                      alignment: Alignment.center,
-                      child: FaIcon(FontAwesomeIcons.bars)),
-                  setting.needForUpdate
-                      ? Align(
-                          alignment: Alignment.topRight,
-                          child: Container(
-                            decoration: const BoxDecoration(
-                                shape: BoxShape.circle, color: Colors.red),
-                            width: 8,
-                            height: 8,
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                ]),
-                onPressed: () {
-                  menuModalBottomSheet(context);
-                });
+              tooltip: AppLocalizations.of(context)?.menuTooltip,
+              icon: setting.needForUpdate
+                  ? const Badge(
+                      smallSize: 12,
+                      child: FaIcon(FontAwesomeIcons.bars),
+                    )
+                  : const FaIcon(FontAwesomeIcons.bars),
+              onPressed: () => menuModalBottomSheet(context),
+            ).withHotspot(
+              order: 3,
+              title:
+                  AppLocalizations.of(context)!.onboardingCoachmarkSettingTitle,
+              text: AppLocalizations.of(context)!
+                  .onboardingCoachmarkSettingContent,
+              flow: kOnboardingCoachmarkFlow,
+            );
           }),
-          IconButton(
-            icon: const FaIcon(FontAwesomeIcons.calendarDays),
-            tooltip: AppLocalizations.of(context)!.menuTimetableTooltip,
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  settings: const RouteSettings(name: 'Full Prayer Timetable'),
-                  builder: (_) => PrayerFullTable()));
-            },
+          // These buttons were grouped into Row because we want to combine
+          // the coachmark
+          Row(
+            children: [
+              IconButton(
+                icon: const FaIcon(FontAwesomeIcons.calendarDays),
+                tooltip: AppLocalizations.of(context)!.menuTimetableTooltip,
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      settings:
+                          const RouteSettings(name: 'Full Prayer Timetable'),
+                      builder: (_) => PrayerFullTable()));
+                },
+              ),
+              IconButton(
+                icon: const FaIcon(FontAwesomeIcons.kaaba),
+                // color: iconColour,
+                tooltip: AppLocalizations.of(context)?.qiblaTitle,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      settings: const RouteSettings(name: 'Qibla'),
+                      builder: (_) => GetStorage().read(kHasShowQiblaWarning)
+                          ? const QiblaPage()
+                          : const QiblaDisclaimerPage(),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(MyMptIcons.tasbih_plain),
+                tooltip: "Tasbih",
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      settings: const RouteSettings(name: 'Tasbih'),
+                      builder: (_) => const Tasbih(),
+                    ),
+                  );
+                },
+              )
+            ],
+          ).withHotspot(
+            order: 2,
+            title:
+                AppLocalizations.of(context)!.onboardingCoachmarkUtilitiesTitle,
+            text: AppLocalizations.of(context)!
+                .onboardingCoachmarkUtilitiesContent,
+            flow: kOnboardingCoachmarkFlow,
           ),
-          IconButton(
-            icon: const FaIcon(FontAwesomeIcons.kaaba),
-            // color: iconColour,
-            tooltip: AppLocalizations.of(context)?.qiblaTitle,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  settings: const RouteSettings(name: 'Qibla'),
-                  builder: (_) => GetStorage().read(kHasShowQiblaWarning)
-                      ? const Qibla()
-                      : const QiblaWarn(),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(MyMptIcons.tasbih_plain),
-            tooltip: "Tasbih",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  settings: const RouteSettings(name: 'Tasbih'),
-                  builder: (_) => const Tasbih(),
-                ),
-              );
-            },
-          )
         ],
       ),
     );
@@ -140,18 +152,13 @@ void menuModalBottomSheet(BuildContext context) {
             Consumer<UpdaterProvider>(builder: (_, setting, __) {
               if (setting.needForUpdate) {
                 return ListTile(
-                  title: Stack(children: [
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: Container(
-                        decoration: const BoxDecoration(
-                            shape: BoxShape.circle, color: Colors.red),
-                        width: 8,
-                        height: 8,
-                      ),
-                    ),
-                    Text(AppLocalizations.of(context)!.menuUpdateAvailable)
-                  ]),
+                  title: Row(
+                    children: [
+                      Text(AppLocalizations.of(context)!.menuUpdateAvailable),
+                      const SizedBox(width: 5.0),
+                      const Badge(smallSize: 8),
+                    ],
+                  ),
                   leading: FaIcon(FontAwesomeIcons.googlePlay,
                       color: Theme.of(context).colorScheme.secondary),
                   trailing:
@@ -181,7 +188,7 @@ void menuModalBottomSheet(BuildContext context) {
                       toastLength: Toast.LENGTH_LONG,
                       backgroundColor: Colors.grey.shade700,
                     );
-                    LaunchUrl.normalLaunchUrl(url: kPlayStoreListingLink);
+                    LaunchUrl.normalLaunchUrl(url: envPlayStoreListingLink);
                   },
                 );
               }
@@ -193,7 +200,7 @@ void menuModalBottomSheet(BuildContext context) {
               trailing: const FaIcon(FontAwesomeIcons.squareUpRight, size: 21),
               onTap: () {
                 Navigator.pop(context);
-                LaunchUrl.normalLaunchUrl(url: kWebappUrl);
+                LaunchUrl.normalLaunchUrl(url: envWebappUrl);
               },
             ),
             ListTile(

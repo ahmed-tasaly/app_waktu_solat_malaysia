@@ -4,7 +4,8 @@ import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../CONSTANTS.dart' as constants;
+import '../constants.dart' as constants;
+import '../env.dart';
 import '../location_utils/location_database.dart';
 import '../providers/setting_provider.dart';
 import 'date_and_time.dart';
@@ -15,16 +16,19 @@ enum ShareTarget { universal, whatsapp }
 class CopyAndShare {
   static const int _padLength = 8;
 
-  static String getMessage(BuildContext context,
+  /// Build message given the target medium.
+  static String buildMessage(BuildContext context,
       {ShareTarget shareTarget = ShareTarget.universal}) {
-    var l10n = AppLocalizations.of(context);
-    var date = DateFormat('EEEE, d MMMM yyyy', l10n!.localeName)
+    final l10n = AppLocalizations.of(context);
+    final date = DateFormat('EEEE, d MMMM yyyy', l10n!.localeName)
         .format(DateTime.now());
-    var currentLocation = GetStorage().read(constants.kStoredLocationJakimCode);
-    var daerah = LocationDatabase.daerah(currentLocation);
-    var negeri = LocationDatabase.negeri(currentLocation);
-    var times = PrayDataHandler.today();
-    var use12 = Provider.of<SettingProvider>(context, listen: false).use12hour;
+    final currentLocation =
+        GetStorage().read(constants.kStoredLocationJakimCode);
+    final daerah = LocationDatabase.daerah(currentLocation);
+    final negeri = LocationDatabase.negeri(currentLocation);
+    final times = PrayDataHandler.today();
+    final use12 =
+        Provider.of<SettingProvider>(context, listen: false).use12hour;
     switch (shareTarget) {
       case ShareTarget.universal:
         String message = l10n.shareTitle;
@@ -39,7 +43,7 @@ class CopyAndShare {
         message += '🌙 ${l10n.maghribName}: ${times.maghrib.format(use12)}\n';
         message += '⭐ ${l10n.ishaName}: ${times.isha.format(use12)}\n';
         message += '\n';
-        message += l10n.shareGetApp(constants.kMptFdlGetLink);
+        message += l10n.shareGetApp(envAppWebsite);
 
         return message;
       case ShareTarget.whatsapp:
@@ -60,7 +64,7 @@ class CopyAndShare {
         message +=
             '```⭐ ${l10n.ishaName.padRight(_padLength)}: ${times.isha.format(use12)}```\n';
         message += '\n';
-        message += l10n.shareGetApp(constants.kMptFdlGetLink);
+        message += l10n.shareGetApp(envAppWebsite);
 
         return message;
     }

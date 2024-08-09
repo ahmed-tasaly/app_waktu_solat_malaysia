@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -10,15 +10,17 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart' hide Location;
 import 'package:geolocator/geolocator.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-import '../CONSTANTS.dart';
+import '../constants.dart';
 import '../components/zone_selector_dialog.dart';
+import '../env.dart';
 import '../location_utils/location_data.dart';
 import '../location_utils/location_database.dart';
-import '../location_utils/location_coordinate.dart';
 import '../location_utils/location_coordinate_model.dart';
 import '../models/jakim_zones.dart';
+import '../models/mpt_server_zone_info.dart';
 import '../providers/location_provider.dart';
 import '../utils/debug_toast.dart';
 
@@ -51,27 +53,20 @@ class LocationChooser {
   }
 
   static Future<LocationCoordinateData> _getAllLocationData() async {
-    Placemark firstPlacemark;
-
-    Position pos = await LocationData.getCurrentLocation();
+    final Position pos = await LocationData.getCurrentLocation();
     DebugToast.show(pos.toString());
+    late List<dynamic> response;
     try {
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(pos.latitude, pos.longitude);
-      firstPlacemark = placemarks.first;
-    } on PlatformException catch (e) {
-      if (e.message!.contains('A network error occurred')) {
-        throw 'A network error occurred trying to lookup the supplied coordinates.';
-      } else {
-        rethrow;
-      }
+      response = await Future.wait([
+        placemarkFromCoordinates(pos.latitude, pos.longitude),
+        _getJakimCodeNearby(pos),
+      ]);
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
     }
-    if (firstPlacemark.country!.toLowerCase() != "malaysia") {
-      throw 'Outside Malaysia';
-    }
-    DebugToast.show(firstPlacemark.toString(), duration: Toast.LENGTH_LONG);
-    var zone = LocationCoordinate.getJakimCodeNearby(
-        pos.latitude, pos.longitude, firstPlacemark.administrativeArea);
+
+    final firstPlacemark = (response.first as List<Placemark>).first;
+    final String zone = response.last as String;
 
     // for [lokasi], the priority us `subLocality`. If empty, `locality`.
     // If empty, fallback to `name`.
@@ -87,8 +82,26 @@ class LocationChooser {
         lng: null);
   }
 
+  static Future<String> _getJakimCodeNearby(Position position) async {
+    final uri = Uri.https(envApiBaseHost, 'api/zones/gps', {
+      'lat': position.latitude.toString(),
+      'long': position.longitude.toString(),
+    });
+    final res = await http.get(uri);
+
+    if (res.statusCode == 200) {
+      final result = MptServerZoneInfo.fromJson(jsonDecode(res.body));
+      return result.zone;
+    } else if (res.statusCode == 404) {
+      // location not in bound
+      throw 'Location is outside of Malaysia';
+    } else {
+      throw 'Error getting jakim code';
+    }
+  }
+
   static Future<bool> showLocationChooser(BuildContext context) async {
-    bool? res = await showDialog(
+    final bool? res = await showDialog(
       context: context,
       builder: (context) {
         return Dialog(
@@ -106,13 +119,9 @@ class LocationChooser {
                     return const ZoneLoadingWidget();
                   } else if (snapshot.hasData) {
                     return ZoneSuccessWidget(coordinateData: snapshot.data!);
-                  } else if (snapshot.hasError) {
-                    return ZoneErrorWidget(
-                        errorMessage: snapshot.error.toString());
                   } else {
-                    return const ZoneErrorWidget(
-                      errorMessage: 'Unexpected error occured',
-                    );
+                    DebugToast.show('Error: ${snapshot.error}');
+                    return const ZoneErrorWidget();
                   }
                 }),
           ),
@@ -123,23 +132,23 @@ class LocationChooser {
   }
 
   static Future<void> openManualZoneSelector(BuildContext context) async {
-    JakimZones? newZone =
+    final JakimZones? newZone =
         await Navigator.of(context).push(MaterialPageRoute(builder: (_) {
       return const ZoneSelectorDialog();
     }));
 
     if (newZone == null) return;
-    print('newzone is $newZone');
 
     Provider.of<LocationProvider>(context, listen: false).currentLocationCode =
         newZone.jakimCode;
     onNewLocationSaved(context);
+    print(newZone.daerah);
+    GetStorage().write(kWidgetLocation, newZone.daerah);
   }
 }
 
 class LocationBubble extends StatelessWidget {
-  const LocationBubble(this.shortCode, {Key? key, this.selected = false})
-      : super(key: key);
+  const LocationBubble(this.shortCode, {super.key, this.selected = false});
 
   final bool selected;
   final String shortCode;
@@ -167,8 +176,7 @@ class LocationBubble extends StatelessWidget {
 }
 
 class ZoneSuccessWidget extends StatelessWidget {
-  const ZoneSuccessWidget({Key? key, required this.coordinateData})
-      : super(key: key);
+  const ZoneSuccessWidget({super.key, required this.coordinateData});
 
   final LocationCoordinateData coordinateData;
 
@@ -236,6 +244,8 @@ class ZoneSuccessWidget extends StatelessWidget {
                     onPressed: () {
                       value.currentLocationCode = coordinateData.zone;
                       LocationChooser.onNewLocationSaved(context);
+                      GetStorage().write(kWidgetLocation,
+                          coordinateData.lokasi ?? coordinateData.negeri);
 
                       Navigator.pop(context, true);
                     },
@@ -251,7 +261,7 @@ class ZoneSuccessWidget extends StatelessWidget {
 }
 
 class ZoneLoadingWidget extends StatelessWidget {
-  const ZoneLoadingWidget({Key? key}) : super(key: key);
+  const ZoneLoadingWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -277,10 +287,7 @@ class ZoneLoadingWidget extends StatelessWidget {
 }
 
 class ZoneErrorWidget extends StatelessWidget {
-  const ZoneErrorWidget({Key? key, required this.errorMessage})
-      : super(key: key);
-
-  final String errorMessage;
+  const ZoneErrorWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -304,21 +311,10 @@ class ZoneErrorWidget extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Icon(
-                        Icons.fmd_bad_outlined,
-                        size: 40,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      Icon(
-                        Icons
-                            .signal_cellular_connected_no_internet_0_bar_outlined,
-                        size: 40,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ],
+                  Icon(
+                    Icons.fmd_bad_outlined,
+                    size: 40,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                   MarkdownBody(
                     data: AppLocalizations.of(context)!.zoneErrorPara1,
@@ -344,8 +340,9 @@ class ZoneErrorWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () async =>
-                      await AppSettings.openLocationSettings(),
+                  onPressed: () => AppSettings.openAppSettings(
+                    type: AppSettingsType.location,
+                  ),
                   child: Text(
                     AppLocalizations.of(context)!.zoneOpenLocationSettings,
                   ),

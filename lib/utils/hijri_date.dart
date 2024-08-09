@@ -36,8 +36,8 @@ class HijriDate {
   late String shortMonthName;
 
   /// Parse Hijri date from JAKIM API response
-  HijriDate.fromJson(String hijriDate) {
-    var date = hijriDate.split('-');
+  HijriDate.parse(String hijriDate) {
+    final date = hijriDate.split('-');
 
     year = int.parse(date.first);
     month = int.parse(date[1]);

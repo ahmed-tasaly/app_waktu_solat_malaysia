@@ -1,28 +1,42 @@
-import '../models/jakim_esolat_model.dart';
+import 'package:get_storage/get_storage.dart';
+
+import '../constants.dart';
+import '../location_utils/location_database.dart';
+import '../models/mpt_server_solat.dart';
 import '../networking/mpt_fetch_api.dart';
+import 'homescreen.dart';
 
 final int _day = DateTime.now().day;
 
 class PrayDataHandler {
-  static JakimEsolatModel? _esolatModel;
+  static MptServerSolat? _mptServerSolat;
 
   /// This function must be called everytime the zone is changed
   /// Returns the hijri date
   static Future<String> init(String zone) async {
-    _esolatModel = await MptApiFetch.fetchMpt(zone);
+    _mptServerSolat = await MptApiFetch.fetchMpt(zone);
+
+    // Alang2 init, we save the data to widget
+    var widgetLocation = GetStorage().read(kWidgetLocation);
+    if (widgetLocation == null || widgetLocation.isEmpty) {
+      widgetLocation = LocationDatabase.daerah(zone);
+    }
+    Homescreen.savePrayerDataAndUpdateWidget(
+        _mptServerSolat!.toJson(), widgetLocation!);
+
     return today().hijri.toString();
   }
 
   // Return all data for a montth
-  static List<PrayerTime> month() {
-    return _esolatModel!.prayerTime!;
+  static List<Prayers> month() {
+    return _mptServerSolat!.prayers;
   }
 
-  static PrayerTime today() {
-    return _esolatModel!.prayerTime![_day - 1];
+  static Prayers today() {
+    return _mptServerSolat!.prayers[_day - 1];
   }
 
   /// remove past date for notification scheduling
-  static List<PrayerTime> notificationTimes() =>
-      _esolatModel!.prayerTime!.sublist(_day - 1);
+  static List<Prayers> notificationTimes() =>
+      _mptServerSolat!.prayers.sublist(_day - 1);
 }

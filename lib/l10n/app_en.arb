@@ -51,6 +51,12 @@
   },
   "appBodyChangeLocation": "Change",
   "appBodyLocSemanticLabel": "A button to change location",
+  "onboardingCoachmarkLocationTitle": "Prayer time location",
+  "onboardingCoachmarkLocationContent": "Set or change your prayer time location here",
+  "onboardingCoachmarkUtilitiesTitle": "Additional utilities at your fingertips",
+  "onboardingCoachmarkUtilitiesContent": "Find the monthly timetable, compass, and digital tasbih here",
+  "onboardingCoachmarkSettingTitle": "Customize the app to suit your style",
+  "onboardingCoachmarkSettingContent": "You can enable Dhuha time, time format, language, font size and theme settings here",
   "menuThemes": "Themes",
   "menuSettings": "Settings",
   "menuRate": "Rate and review",
@@ -70,6 +76,27 @@
     }
   },
   "timetableDate": "Date",
+  "timetableExportTooltip": "Export timetable as PDF",
+  "timetableExportExporting": "Exporting",
+  "timetableExportSuccess": "Prayer timetable PDF file is ready",
+  "timetableExportOpen": "Open",
+  "timetableExportShare": "Share",
+  "timetableExportError": "Sorry. Error occurred when exporting timetable. Please try again. {error}",
+  "@timetableExportError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "timetableExportFileShareSubject": "Prayer Timetable. {link}",
+  "@timetableExportFileShareSubject": {
+    "placeholders": {
+      "link": {
+        "type": "String"
+      }
+    }
+  },
   "timetableOneThird": "Last 1/3 night",
   "timetableSettingTitle": "Timetable setting",
   "timetableSettingHijri": "Show Hijri column",
@@ -204,7 +231,7 @@
   "onboardingLocationSet": "Set location",
   "onboardingThemeFav": "Set your favourite theme",
   "onboardingNotifOption": "Select notification preferences",
-  "onboardingNotifDefault": "Default notification sound",
+  "onboardingNotifDefault": "Default notification",
   "onboardingNotifAzan": "Azan (full)",
   "onboardingNotifShortAzan": "Azan (short)",
   "onboardingNotifAutostart": "**Autostart** need to be enabled for the app to send notifications. [Learn more...]({link})",
@@ -220,6 +247,16 @@
   "onboardingFinishDesc": "Welcome aboard. Do explore other features and tweak other settings as well.",
   "onboardingDone": "Done",
   "onboardingNext": "Next",
+  "coachmarkDone": "Done",
+  "coachmarkNext": "Next",
+  "coachmarkPrevious": "Previous",
+  "coachmarkEnd": "End tour",
+  "permissionDialogTitle": "Permission required",
+  "permissionDialogSkip": "Skip",
+  "permissionDialogGrant": "Grant",
+  "autostartDialogPermissionContent": "Please allow app to Autostart to keep receive notifications even if the device restarts",
+  "notifDialogPermissionContent": "Please grant the notification permission to allow this app to show notifications",
+  "notifExactAlarmDialogPermissionContent": "Please grant the app permission to schedule notifications at exact time",
   "zoneUpdatedToast": "Location updated",
   "zoneYourLocation": "Your location",
   "zoneSetManually": "Set manually",
@@ -229,6 +266,9 @@
   "zoneErrorPara2": "Please **retry** or choose location **manually**.",
   "zoneOpenLocationSettings": "Open Location Settings",
   "zoneLoading": "Loading",
+  "zoneManualSelectState": "Select state",
+  "zoneManualSelectZone": "Select zone",
+  "zoneManualSave": "Save",
   "notifSettingBasic": "Basic",
   "notifSettingChangesDetect": "Changes will take effect after restarting the app",
   "notifSettingRestartApp": "Restart",
@@ -253,6 +293,17 @@
   "notifSettingCancel": "Cancel",
   "notifSettingProceed": "Proceed",
   "notifSettingNotifDemo": "This is how the notification/azan will sound like",
+  "notifSettingsExactAlarmPermissionTitle": "Notification scheduling permission",
+  "notifSettingsExactAlarmPermissionGrantedSubtitle": "Permission granted. The app can send azan notification on prayer times",
+  "notifSettingsExactAlarmPermissionNotGrantedSubtitle": "Permission not granted. The app cannot send the azan notification. Tap here to grant permission",
+  "notifSheetExactAlarmTitle": "We require one more permission to trigger the notification/azan at the right time",
+  "notifSheetExactAlarmDescription": "This permission is needed to push the notification at the correct time. If you say no, the app might still schedule the notification, but the delivery may be delayed.",
+  "notifSheetExactAlarmPrimaryButton": "Grant now",
+  "notifSheetExactAlarmCancel": "Cancel",
+  "notifSheetNotificationTitle": "Notification/Azan is turned off",
+  "notifSheetNotificationDescription": "We may require some permissions to be able to play the notification/azan",
+  "notifSheetNotificationPrimaryButton": "Turn On Notification",
+  "notifSheetNotificationCancel": "Keep it off for now",
   "contributenDesc": "Alhamdulillah. If you love using our app and would like to show your appreciation, you can now make a financial contribution to support our ongoing efforts. May Allah SWT rewards your kindness.",
   "contributeShare": "Share this app",
   "contributeShareDesc": "Share your experience of using this app with your family and friends.",

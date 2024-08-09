@@ -3,8 +3,8 @@
 ![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=flat-square&logo=Flutter&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=flat-square&logo=android&logoColor=white)
 [![Ready on PWA](https://img.shields.io/badge/Ready%20on-PWA-5a0fc8?style=flat-square)](https://waktusolat.web.app/)
-![Maintenance](https://img.shields.io/maintenance/yes/2023?style=flat-square)
-[![Installs](https://img.shields.io/badge/installs-46k+-informational?style=flat-square)](https://play.google.com/store/apps/details?id=live.iqfareez.waktusolatmalaysia)
+![Maintenance](https://img.shields.io/maintenance/yes/2024?style=flat-square)
+[![Installs](https://img.shields.io/badge/installs-50k+-informational?style=flat-square)](https://play.google.com/store/apps/details?id=live.iqfareez.waktusolatmalaysia)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/mptwaktusolat/app_waktu_solat_malaysia?style=flat-square)
 ![License](https://img.shields.io/github/license/mptwaktusolat/app_waktu_solat_malaysia?style=flat-square)
 [![style: flutter_lints](https://img.shields.io/badge/style-flutter__lints-4BC0F5.svg?style=flat-square)](https://pub.dev/packages/flutter_lints)
@@ -21,25 +21,27 @@ More screenshots [here](https://imgur.com/a/Zhh7aBB)!
 
 ## API
 
-[~~Azanpro API~~](https://api.azanpro.com/)\
-[~~WaktuSolatApp API~~](https://waktusolatapp.com/)\
-[~~MPTi906 API~~](https://mpt.i906.my/)\
-~~[e-solat JAKIM API](https://www.e-solat.gov.my/) & [mpt-backup-api](https://mpt-backup-api.herokuapp.com/)~~\
-[MPT-Server](https://mpt-server.vercel.app/) & [e-solat JAKIM API](https://www.e-solat.gov.my/)
+- [~~Azanpro API~~](https://api.azanpro.com/)
+- [~~WaktuSolatApp API~~](https://waktusolatapp.com/)
+- [~~MPTi906 API~~](https://mpt.i906.my/)
+- [~~e-solat JAKIM API~~](https://www.e-solat.gov.my/)
+- [~~mpt-backup-api~~](https://mpt-backup-api.herokuapp.com/)
+- [Waktu Solat App API](https://api.waktusolat.app) - _Our own API 💛_
 
 ## Website
 
-Features and troubleshooting steps are documented on the website.
-
-https://waktusolat.iqfareez.com/
+Features and troubleshooting steps are documented on the website: https://help.waktusolat.app/
 
 ## Getting started
 
-See [wiki](https://github.com/mptwaktusolat/app_waktu_solat_malaysia/wiki).
+For developers, see [wiki](https://github.com/mptwaktusolat/app_waktu_solat_malaysia/wiki).
+
+> [!NOTE]
+> I'm in the process in refactoring the codebase to make it more maintainable and readable since #230. So, the codebase might be a bit messy. Sorry.
 
 ## Changelog History
 
-Wondering what changed with every :new: release? Or what bug :bug: has been fixed? Visit [here](https://github.com/mptwaktusolat/app_waktu_solat_malaysia/wiki/Changelog)!
+Wondering what changed with every :new: release? Or what bug :bug: has been fixed? Visit changelog page [here](https://waktusolat.app/changelog)!
 
 ## Report issues / Feature requests
 
@@ -87,6 +89,7 @@ Note: Pre-release versions are not always submitted to the Google Play Store (Be
 [![Part 8](https://img.shields.io/badge/highlights-Part%208-blueviolet?style=for-the-badge)](https://www.instagram.com/s/aGlnaGxpZ2h0OjE3OTU1MjM0NjM0OTAxMzg5)
 [![Part 9](https://img.shields.io/badge/highlights-Part%209-blueviolet?style=for-the-badge)](https://www.instagram.com/stories/highlights/17961012149100642/)
 [![Part 10](https://img.shields.io/badge/highlights-Part%2010-blueviolet?style=for-the-badge)](https://www.instagram.com/s/aGlnaGxpZ2h0OjE4MjcxMDUwODc3MTM1ODUy)
+[![Part 11](https://img.shields.io/badge/highlights-Part%2010-blueviolet?style=for-the-badge)](https://www.instagram.com/s/aGlnaGxpZ2h0OjE3OTc0NDgyMDQxNTA5ODcw)
 
 ## Motivation
 

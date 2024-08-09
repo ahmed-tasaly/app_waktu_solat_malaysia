@@ -5,11 +5,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../CONSTANTS.dart' as constants;
+import '../constants.dart' as constants;
+import '../env.dart';
 import '../utils/launch_url.dart';
 
 class ContributionPage extends StatelessWidget {
-  const ContributionPage({Key? key}) : super(key: key);
+  const ContributionPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,8 +36,7 @@ class ContributionPage extends StatelessWidget {
                     onPressed: () {
                       Share.share(
                           AppLocalizations.of(context)!.contributeShareContent(
-                              constants.kPlayStoreListingShortLink,
-                              constants.kWebappUrl),
+                              envPlayStoreListingShortLink, envWebappUrl),
                           subject: AppLocalizations.of(context)!
                               .contributeShareSubject);
                     },
@@ -44,21 +44,19 @@ class ContributionPage extends StatelessWidget {
                   ),
                 ],
               ),
-              const Divider(),
               _MyCard(
                 title: AppLocalizations.of(context)!.contributeSource,
                 description: AppLocalizations.of(context)!.contributeSourceDesc,
                 actions: [
                   TextButton(
                       onPressed: () {
-                        copyClipboard(context, constants.kGithubRepoLink);
+                        copyClipboard(context, envGithubRepoLink);
                       },
                       child:
                           Text(AppLocalizations.of(context)!.contributeCopy)),
                   TextButton(
                       onPressed: () {
-                        LaunchUrl.normalLaunchUrl(
-                            url: constants.kGithubRepoLink);
+                        LaunchUrl.normalLaunchUrl(url: envGithubRepoLink);
                       },
                       child:
                           Text(AppLocalizations.of(context)!.contributeOpenGh)),
@@ -85,19 +83,15 @@ class ContributionPage extends StatelessWidget {
   }
 }
 
-// ignore: must_be_immutable
 class _MyCard extends StatelessWidget {
   const _MyCard({
-    Key? key,
     required this.title,
     this.description,
-    this.extraDescription,
     this.actions,
-  }) : super(key: key);
+  });
 
   final String title;
   final String? description;
-  final String? extraDescription;
   final List<Widget>? actions;
 
   @override
@@ -116,14 +110,6 @@ class _MyCard extends StatelessWidget {
               ),
               subtitle: Text('\n$description'),
             ),
-            if (extraDescription != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  extraDescription!,
-                  textAlign: TextAlign.start,
-                ),
-              ),
             if (actions != null)
               Row(mainAxisAlignment: MainAxisAlignment.end, children: actions!)
           ],

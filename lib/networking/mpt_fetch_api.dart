@@ -4,69 +4,53 @@ import 'dart:io';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
-import '../CONSTANTS.dart';
-import '../models/jakim_esolat_model.dart';
-import '../utils/date_and_time.dart';
+import '../constants.dart';
+import '../env.dart';
+import '../models/mpt_server_solat.dart';
 import '../utils/debug_toast.dart';
 
 class MptApiFetch {
   /// Attempt to read from cache first, if cache not available,
-  /// proceed using mpt-server's API, if data invalid, use JAKIM's
-  static Future<JakimEsolatModel> fetchMpt(String location) async {
-    if (GetStorage().read(kJsonCache) != null) {
-      var json = GetStorage().read(kJsonCache);
+  /// fetch data from mpt-server's API
+  static Future<MptServerSolat> fetchMpt(String location) async {
+    // build the URI
+    final queryParams = {
+      'year': DateTime.now().year.toString(),
+      'month': DateTime.now().month.toString(),
+    };
+    final api =
+        Uri.https(envApiBaseHost, 'api/v2/solat/$location', queryParams);
 
-      var parsedModel = JakimEsolatModel.fromJson(json);
-      // Check is same location code, month and year
-      if (_validateResponse(parsedModel, location)) {
-        DebugToast.show('Reading from cache');
-        await FirebaseAnalytics.instance
-            .logEvent(name: kEventFetch, parameters: {"type": "cached"});
-        return parsedModel;
-      }
-    }
-    dynamic mptJsonResponse;
+    // Generate hashcode from api url
+    // so that the cache key is unique for different location, month & year
+    // and we no longer need a method to check the data is valid based on the paramaters above
+    final requestCacheKey = 'waktusolat-cache-${api.toString().hashCode}';
+    final cacheData = _readFromCache(requestCacheKey);
+    if (cacheData != null) return cacheData;
 
-    // TODO: kemaskan, buat early return or smth
+    final apiResponse = await _mptServerApi(api);
+
+    late final MptServerSolat mptServerSolat;
     try {
-      final api = Uri.https('mpt-server.vercel.app', '/api/log');
-
-      // return error if request takes too much time
-      final response = await http.get(api).timeout(
-            const Duration(seconds: 6),
-            onTimeout: () => http.Response('Error', 408),
-          );
-      if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
-
-        if (DateAndTime.isTheSameYear(jsonResponse['valid_year']) &&
-            DateAndTime.isSameMonthFromM(jsonResponse['valid_month'])) {
-          mptJsonResponse = await _mptServerApi(location);
-          GetStorage().write(kJsonCache, mptJsonResponse);
-        } else {
-          // If data is out of date, use JAKIM's API
-          DebugToast.show('mpt-server data not valid');
-          mptJsonResponse = await _jakimApi(location);
-          GetStorage().write(kJsonCache, mptJsonResponse);
-        }
-      } else {
-        // If return other than 200, use JAKIM's API
-        mptJsonResponse = await _jakimApi(location);
-        GetStorage().write(kJsonCache, mptJsonResponse);
-      }
-
-      return JakimEsolatModel.fromJson(mptJsonResponse);
-    } on SocketException {
-      throw 'No internet connection.';
+      // If issue https://github.com/mptwaktusolat/app_waktu_solat_malaysia/issues/216 like
+      // this ever happens again, the data will not be saved to cache
+      mptServerSolat = MptServerSolat.fromJson(apiResponse);
+      _saveToCache(requestCacheKey, apiResponse);
+    } catch (e) {
+      rethrow;
     }
+
+    return mptServerSolat;
   }
 
-  static Future<dynamic> _mptServerApi(String location) async {
-    final api = Uri.https('mpt-server.vercel.app', 'api/solat/$location');
+  /// Call MPT Server api to get prayer times data
+  static Future<dynamic> _mptServerApi(Uri apiUri) async {
     DebugToast.show('Using mpt-server api');
-    GetStorage().write(kStoredApiPrayerCall, api.toString()); //for debug dialog
-    final response = await http.get(api).timeout(
+    GetStorage()
+        .write(kStoredApiPrayerCall, apiUri.toString()); //for debug dialog
+    final response = await http.get(apiUri).timeout(
           const Duration(seconds: 6),
           onTimeout: () => http.Response('Error', 408),
         );
@@ -81,33 +65,46 @@ class MptApiFetch {
     }
   }
 
-  static Future<dynamic> _jakimApi(String location) async {
-    final api = Uri.https('www.e-solat.gov.my', 'index.php', {
-      'r': 'esolatApi/takwimsolat',
-      'period': 'month',
-      'zone': location,
-    });
-    final response = await http.get(api);
-    GetStorage().write(kStoredApiPrayerCall, api.toString()); //for debug dialog
-    DebugToast.show("Using JAKIM api");
+  /// Read from cache, if cache not available, return null
+  static MptServerSolat? _readFromCache(String cacheKey) {
+    if (GetStorage().read(cacheKey) == null) return null;
 
-    await FirebaseAnalytics.instance
-        .logEvent(name: kEventFetch, parameters: {"type": "jakim"});
+    final cachedData = GetStorage().read(cacheKey);
+    if (cachedData == null) return null;
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw 'Failed to load prayer time (JAKIM api). Status code ${response.statusCode}';
-    }
+    DebugToast.show('Using cached response');
+    FirebaseAnalytics.instance
+        .logEvent(name: kEventFetch, parameters: {"type": "cached"});
+
+    final parsedModel = MptServerSolat.fromJson(cachedData);
+    return parsedModel;
   }
 
-  /// Check if data is valid by compating its month and year
-  static bool _validateResponse(
-      JakimEsolatModel model, String requestedLocationCode) {
-    var lastApiFetched = DateTime.parse(model.serverTime!);
+  /// Save to cache
+  static void _saveToCache(String cacheKey, Map<String, dynamic> response) =>
+      GetStorage().write(cacheKey, response);
 
-    return (model.zone == requestedLocationCode) &&
-        DateAndTime.isSameMonthFromM(lastApiFetched.month) &&
-        DateAndTime.isTheSameYear(lastApiFetched.year);
+  static Future<File> downloadJadualSolat(String zone) async {
+    final year = DateTime.now().year;
+    final month = DateTime.now().month;
+
+    final options = {
+      'year': year.toString(),
+      'month': month.toString(),
+      'zone': zone,
+    };
+
+    final fileSuffix = '$zone-$year-$month';
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/jadual_solat_$fileSuffix.pdf');
+
+    // check if file is exist
+    if (await file.exists()) return file;
+
+    // If not exist, download from server
+    final url = Uri.https(envApiBaseHost, 'api/jadual_solat', options);
+    final data = await http.get(url);
+
+    return file.writeAsBytes(data.bodyBytes);
   }
 }
